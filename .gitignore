@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Environment files (NEVER commit these - contains your API key)
+.env
+backend/.env
+frontend/.env
+
+# Database files
+backend/data/
+data/
+*.json.bak
+
+# Build output
+frontend/build/
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Package locks (optional - some teams commit these)
+package-lock.json
+frontend/package-lock.json
+backend/package-lock.json
