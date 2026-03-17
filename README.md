@@ -1,147 +1,80 @@
 # CSC AI Co-Pilot
-### Intelligent Assistant for Common Service Centre Operators
-**District: Rajnandgaon, Chhattisgarh** · GovTech · AI for Citizen Services
+**AI-powered assistant for Common Service Centre operators · Rajnandgaon, Chhattisgarh**
+
+![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Claude AI](https://img.shields.io/badge/AI-Claude%20Sonnet-E87722?style=flat-square)
+![Domain](https://img.shields.io/badge/Domain-GovTech-1a2d5a?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 ---
 
-## Overview
-
-CSC AI Co-Pilot is a full-stack intelligent assistant that helps frontline CSC operators reduce form rejections and cut per-application handling time. It monitors government form filling in real-time, validates fields before submission, and provides bilingual (Hindi + English) guidance powered by Claude AI.
-
-**Problem solved:** CSC operators in Rajnandgaon process 70–90 applications/day on slow portals with no guidance. Every rejection bounces back to their desk. This tool catches errors before they become rejections.
+CSC operators in Rajnandgaon process **70–90 government applications per day** — pensions, certificates, licenses — on slow portals with no guidance. Every mistake causes a rejection that bounces back days later. This tool catches errors **before** submission.
 
 ---
 
-## Architecture
+## Screenshot
 
-```
-┌─────────────────┐     ┌─────────────────────┐     ┌──────────────┐
-│  React Frontend │────▶│  Express.js Backend  │────▶│  Claude API  │
-│  (Port 3000)    │     │  (Port 5000)         │     │  (Anthropic) │
-│                 │     │                      │     └──────────────┘
-│  • Form UI      │     │  • AI Chat Route     │
-│  • Live Valid.  │     │  • Validation Route  │     ┌──────────────┐
-│  • AI Chat      │     │  • Applications DB   │────▶│  SQLite DB   │
-│  • Offline mode │     │  • Analytics         │     │  (local)     │
-└─────────────────┘     └─────────────────────┘     └──────────────┘
-```
+> **Main interface** — Service selector (left) · Live form with real-time validation (centre) · AI assistant with rejection risk meter (right)
+
+![CSC AI Co-Pilot Interface](screenshot.png)
+
+> **How to add your screenshot:**
+> 1. Run the app (`start.bat`)
+> 2. Open `http://localhost:3000`
+> 3. Press `Win + Shift + S` → select the full app window
+> 4. Save as `screenshot.png` in the project root folder
+> 5. Push to GitHub — the image will appear here automatically
 
 ---
 
-## Key Features
+## What It Does
 
-### 🔍 Real-time Field Validation (Online + Offline)
-- **Aadhaar**: 12-digit format, no leading 0/1, Verhoeff checksum
-- **IFSC**: `[A-Z]{4}0[A-Z0-9]{6}` pattern, bank identification
-- **Mobile**: 10-digit, starts with 6–9
-- **Age**: Pension eligibility (≥60), auto-calculated from DOB
-- **Pincode**: Rajnandgaon district validation (491xxx range)
-
-### 🤖 Claude AI Integration
-- Bilingual responses (English + हिंदी Devanagari)
-- District-specific rejection pattern knowledge
-- Context-aware (knows current form, field values, service type)
-- <100 word responses for time-pressed operators
-
-### 📊 Rejection Pattern Intelligence
-Pre-loaded with Rajnandgaon district data:
-| Service | Top Cause | Rate |
-|---------|-----------|------|
-| Old Age Pension | Age proof missing | 43% |
-| Old Age Pension | Wrong IFSC | 28% |
-| Birth Certificate | Hospital cert missing | 55% |
-| Caste Certificate | Wrong form | 38% |
-| Income Certificate | Income source proof | 45% |
-
-### ⚡ Offline / Edge Mode
-All core validators work without internet:
-- Aadhaar format check
-- IFSC pattern validation  
-- Mobile number check
-- Age eligibility inference
-- Pincode district check
-- Cached AI responses for common queries
-
-### 🌐 6 Government Services
-Old Age Pension · Birth Certificate · Caste Certificate · Domicile Certificate · Income Certificate · Land Record (B1)
+| Feature | Detail |
+|---|---|
+| **Live field validation** | Aadhaar checksum, IFSC format, mobile, age, pincode — validated as you type |
+| **AI chat assistant** | Ask anything in Hindi or English — concise bilingual answers via Claude |
+| **Rejection risk meter** | Score updates live; blocks submission if risk exceeds 65% |
+| **Document checklist** | Shows missing documents with district-level rejection rate per document |
+| **Eligibility inference** | Checks age, residency, income against service rules before submission |
+| **Offline mode** | All validators work without internet; AI falls back to cached responses |
+| **6 government services** | Pension · Birth · Caste · Domicile · Income · Land Record |
 
 ---
 
 ## Quick Start
 
-### Prerequisites
-- Node.js 18+
-- An Anthropic API key (get one at https://console.anthropic.com)
-
-### 1. Clone & Configure
 ```bash
-# Copy and fill in your API key
-cp .env.example .env
-# Edit .env and set ANTHROPIC_API_KEY=sk-ant-...
+# 1. Clone
+git clone https://github.com/YOUR-USERNAME/csc-ai-copilot.git
+cd csc-ai-copilot
+
+# 2. Add your Anthropic API key
+# Edit backend/.env and set:
+# ANTHROPIC_API_KEY=sk-ant-...
+
+# 3. Run (Windows)
+start.bat
+
+# 3. Run (Mac/Linux)
+chmod +x start.sh && ./start.sh
 ```
 
-### 2. Install & Run Backend
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Edit .env with your ANTHROPIC_API_KEY
-npm start
-# API running at http://localhost:5000
-```
+Open **http://localhost:3000** in your browser.
 
-### 3. Install & Run Frontend
-```bash
-cd frontend
-npm install
-npm start
-# App running at http://localhost:3000
-```
-
-### Using Docker Compose (recommended)
-```bash
-# From project root, with .env file containing ANTHROPIC_API_KEY
-docker-compose up --build
-# App at http://localhost:3000
-# API at http://localhost:5000
-```
+Get your API key at → https://console.anthropic.com
 
 ---
 
-## API Reference
+## Tech Stack
 
-### POST /api/ai/chat
-```json
-{ "message": "What documents for age proof?", "serviceType": "pension", "formData": {...} }
-→ { "reply": "Age proof alternatives: Birth certificate, School TC..." }
 ```
-
-### POST /api/validate/aadhaar
-```json
-{ "value": "1234 5678 9012" }
-→ { "valid": true, "formatted": "1234 5678 9012", "message": "Valid Aadhaar format" }
-```
-
-### POST /api/validate/ifsc
-```json
-{ "value": "SBIN0001234" }
-→ { "valid": true, "bank": "State Bank of India" }
-```
-
-### POST /api/applications
-```json
-{ "serviceType": "pension", "formData": {...} }
-→ { "id": "uuid-..." }
-```
-
-### GET /api/analytics/rejection-patterns?serviceType=pension
-```json
-{ "pension": [{ "reason": "Age proof missing", "percentage": 43 }, ...] }
-```
-
-### GET /api/analytics/dashboard
-```json
-{ "todayApplications": 47, "acceptanceRate": 91, "errorsCaughtToday": 4 }
+Frontend    React 18 · axios · react-hot-toast · pure CSS
+Backend     Node.js · Express.js · lowdb · dotenv · helmet
+AI Model    Claude Sonnet (claude-sonnet-4-20250514) via Anthropic SDK
+Validation  Verhoeff algorithm · regex engine · rule-based scoring
+Database    lowdb JSON (upgradeable to MongoDB / PostgreSQL)
+Deployment  Docker · nginx · docker-compose
 ```
 
 ---
@@ -154,64 +87,65 @@ csc-copilot/
 │   ├── server.js              # Express entry point
 │   ├── routes/
 │   │   ├── ai.js              # Claude AI chat + analysis
-│   │   ├── validate.js        # Field validators (Aadhaar, IFSC, etc.)
-│   │   ├── applications.js    # CRUD for applications
-│   │   ├── analytics.js       # Rejection patterns, dashboard
-│   │   └── services.js        # Service definitions & rules
-│   ├── db/
-│   │   └── database.js        # SQLite init + seeding
-│   └── package.json
+│   │   ├── validate.js        # Aadhaar, IFSC, mobile, age, pincode
+│   │   ├── applications.js    # Application CRUD + submit
+│   │   ├── analytics.js       # Rejection patterns + dashboard
+│   │   └── services.js        # Service definitions + eligibility rules
+│   └── db/database.js         # lowdb JSON database + seeding
 ├── frontend/
-│   ├── src/
-│   │   ├── App.js             # Root component + state
-│   │   ├── components/
-│   │   │   ├── Header.js      # Top bar + network status
-│   │   │   ├── Sidebar.js     # Service selector + stats
-│   │   │   ├── FormPanel.js   # Main form with tabs
-│   │   │   ├── AIPanel.js     # AI chat + risk meter
-│   │   │   └── tabs/
-│   │   │       ├── PersonalTab.js    # Applicant + bank details
-│   │   │       ├── AddressTab.js     # Address + pincode
-│   │   │       ├── DocumentsTab.js   # Document upload checklist
-│   │   │       └── EligibilityTab.js # Eligibility + rejection patterns
-│   │   ├── hooks/
-│   │   │   ├── useNetworkStatus.js   # Online/offline detection
-│   │   │   └── useValidation.js      # Field validation hook
-│   │   └── utils/
-│   │       ├── api.js                # Axios API client
-│   │       └── validators.js         # Offline validators + risk calc
-│   └── package.json
+│   └── src/
+│       ├── components/
+│       │   ├── Header.js      # Network status + offline toggle
+│       │   ├── Sidebar.js     # Service selector + daily stats
+│       │   ├── FormPanel.js   # 4-tab form
+│       │   ├── AIPanel.js     # Claude chat + risk meter
+│       │   └── tabs/          # PersonalTab · AddressTab · DocumentsTab · EligibilityTab
+│       ├── hooks/
+│       │   └── useNetworkStatus.js   # Online/offline/2G detection
+│       └── utils/
+│           ├── api.js                # Axios API client
+│           └── validators.js         # Offline-first validators + risk calculator
 ├── docker-compose.yml
-├── .env.example
+├── start.bat                  # Windows one-click start
+├── start.sh                   # Mac/Linux one-click start
 └── README.md
 ```
 
 ---
 
-## Field Constraints (District-Specific)
+## Rejection Patterns (Pre-loaded · Rajnandgaon District)
 
-| Field | Rule | Source |
-|-------|------|--------|
-| Aadhaar | 12 digits, not starting 0 or 1 | UIDAI spec |
-| IFSC | `[A-Z]{4}0[A-Z0-9]{6}` | RBI standard |
-| Mobile | 10 digits, starts 6–9 | TRAI |
-| Pincode | 491441–491559 for Rajnandgaon | India Post |
-| Age (pension) | ≥ 60 years | CG Pension Scheme |
-| Residency | ≥ 15 years in CG | Domicile Rules 2000 |
-| Income (pension) | < ₹1,00,000/year | NSAP guidelines |
+| Service | Top Rejection Cause | Rate |
+|---|---|---|
+| Old Age Pension | Age proof missing | 43% |
+| Old Age Pension | Wrong IFSC code | 28% |
+| Birth Certificate | Hospital cert missing | 55% |
+| Caste Certificate | Wrong form submitted | 38% |
+| Income Certificate | Income source proof missing | 45% |
+| Land Record | Khasra number mismatch | 38% |
 
 ---
 
-## Evaluation Criteria Addressed
+## Environment Variables
 
-| Criterion | Implementation |
-|-----------|----------------|
-| **Impact** | Pre-submission block at >65% risk; real rejection pattern data |
-| **Intelligence Depth** | Claude AI with district context; Verhoeff checksum; cross-doc DOB match |
-| **Field Realism** | Full offline mode; all validators work on 2G/no internet |
-| **UX / Zero learning curve** | Hindi+English everywhere; color-coded fields; risk meter; quick-question chips |
+```bash
+# backend/.env
+ANTHROPIC_API_KEY=sk-ant-...        # Required — get from console.anthropic.com
+PORT=5000                            # Backend port
+NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
+```
+
+---
+
+## Problem Statement
+
+Built for **PS 01 · AI Co-Pilot for CSC Operators** · GovTech · AI for Citizen Services
+
+> *"Design and build an intelligent assistant for frontline CSC operators that reduces form rejections and cuts per-application handling time without replacing the operator's judgment."*
 
 ---
 
 ## License
-Built for PS 01 · AI Co-Pilot for CSC Operators · GovTech Hackathon
+
+MIT — free to use, modify, and deploy.
